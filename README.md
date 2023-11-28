@@ -148,7 +148,7 @@ You can do next part in the lab (time allowing) or at home. If your VM is slow, 
 
 In simulation with TurtleBot3:
 - Follow the instructions in `tbt3Simulation.md` to run the robot in simulation 
-- In second terminal, run the carthographer: ```ros2 launch turtlebot3_cartographer cartographer.launch.py``` this will open RViz and you should see the base of the map.
+- In second terminal, run the slam: ```ros2 launch slam_toolbox online_sync_launch.py``` this will open RViz and you should see the base of the map.
 - In a third terminal, run the teleop node: ```ros2 run turtlebot3_teleop teleop_keyboard```.
 - Save the map with ```ros2 run nav2_map_server map_saver_cli -f map```. You should see the map saved in the folder where you are currently located. You should have 2 files, one .pgm, and one .yaml.
 
