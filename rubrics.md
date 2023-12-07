@@ -18,9 +18,8 @@
 - ```5/5``` if correctly implemented and completed the code in ```decisions.py``` to adapt the code for the path planner, ```2.5/5``` if completed but partially wrong, ```0/5``` if incomplete/completely wrong.
 - **Bonus** ```2.5``` marks for using PID gains from Lab2, ```2.5``` marks for using Q, R, P from Lab3 and EKF for the localizer.
 
-## Part 6: 25 marks
+## Part 6: 20 marks
 **From Code and Report Submission on LEARN**
-- ```5/5``` if two goal poses were tested successfully, ```2.5/5``` if only one, ```0/5``` if none.
 - ```5/5``` if two heuristics tested successfully, ```2.5/5``` if only one heuristic, ```0/5``` if none.
 
 **In-Lab**
