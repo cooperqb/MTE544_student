@@ -46,7 +46,7 @@ In this first part, explain how the stack works with reference to the several cl
 - ```decisions.py```
 - ```planner.py```
 - ```localization.py```
-- ```planner.py```
+- ```controller.py```
 
 In the explanation:
 - Refer back to what you've done in the labs and how you progressed each lab towards the complete stack.
