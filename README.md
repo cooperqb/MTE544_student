@@ -134,7 +134,7 @@ Report the following sections in your report:
 ## Submission
 
 Submit the report and the code on Dropbox (LEARN) in the corresponding folder.
-- **Report**: one single pdf;
+- **Report**: one single pdf that can be checked for Turnitin (text must be detectable as such, i.e. not printed pdfs);
 - **Code**: make sure to have commented your code! Submit one single zip file with everything (including the csv files obtained from the data log and the map files).
 - **Video**: video file or link to the video in the report.
 
