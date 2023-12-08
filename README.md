@@ -65,7 +65,7 @@ For the final exam, we provide you with a skeleton code for the RRT*. For a deta
 - Complete the RRT* algorithm following the comments in the code provided ```rrt_star.py``` (look for the ```TODO``` items), the following functions need to be completed:
   - ```planning```
   - ```choose_parent```
-  - ```rewire``
+  - ```rewire```
   - ```search_best_goal_node```
 - Instead of a map, you will be using virtual obstacles (see Part 3). This code uses some functionalities derived from ```rrt.py``` (see Appendix at the bottom of this page).
 - It is recommended that you test your RRT* stand-alone without integrating it into the stack yet to solve any possible bug in the planner.
