@@ -14,9 +14,8 @@
 - **Bonus** ```5``` if implemented integration with map (and delivered plot and video with the map).
 
 ## Part 3: 25 marks + 3 marks bonus (from code submission, written report, and video)
-- ```5``` for using EKF and PID controllers properly;
-- ```10``` for two goal points shown in plots;
-- ```5``` for showing the covariances on the plots;
+- ```8``` for using EKF and PID controllers properly;
+- ```12``` for two goal points shown in plots;
 - ```5``` for video(s) showing at least one successful run;
 - **Bonus** ```3``` for logging and plotting the covariance ellipses.
 - There is a deduction of ```1``` mark for each figure missing title, label, legend (when needed), and grid. There is a further deduction of ```1``` for each missing indication of start and goal poses, and ```1``` mark deduction for low-quality video (e.g. not recorded with a screen recorder).
