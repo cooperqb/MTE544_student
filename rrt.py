@@ -82,6 +82,7 @@ class RRT:
 
         self.node_list = [self.start]
         for i in range(self.max_iter):
+            print(f"Iteration: {i}, #Nodes: {len(self.node_list)}")
             rnd_node = self.get_random_node()
             nearest_ind = self.get_nearest_node_index(self.node_list, rnd_node)
             nearest_node = self.node_list[nearest_ind]
@@ -210,7 +211,7 @@ class RRT:
         plt.axis("equal")
         plt.axis([-2, 15, -2, 15])
         plt.grid(True)
-        plt.pause(0.01)
+        plt.pause(0.001)
 
     @staticmethod
     def plot_circle(x, y, size, color="-b"):  # pragma: no cover
@@ -280,8 +281,18 @@ def main(gx=6.0, gy=10.0):
     print("start " + __file__)
 
     # ====Search Path with RRT====
-    obstacleList = [(5, 5, 1), (3, 6, 2), (3, 8, 2), (3, 10, 2), (7, 5, 2),
-                    (9, 5, 2), (8, 10, 1)]  # [x, y, radius]
+    # obstacleList = [(5, 5, 1), (3, 6, 2), (3, 8, 2), (3, 10, 2), (7, 5, 2),
+    #                 (9, 5, 2), (8, 10, 1)]  # [x, y, radius]
+    obstacleList = [
+        (5, 5, 1),
+        (3, 6, 2),
+        (3, 8, 2),
+        (3, 10, 2),
+        (7, 5, 2),
+        (9, 5, 2),
+        (8, 10, 1),
+        (6, 12, 1),
+    ]  # [x,y,size(radius)]
     # Set Initial parameters
     rrt = RRT(
         start=[0, 0],
