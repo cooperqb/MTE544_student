@@ -64,11 +64,11 @@ class RRTStar(RRT):
                  goal,
                  obstacle_list,
                  rand_area,
-                 expand_dis=30.0,
-                 path_resolution=1.0,
+                 expand_dis=1.5,
+                 path_resolution=0.1,
                  goal_sample_rate=20,
                  max_iter=300,
-                 connect_circle_dist=50.0,
+                 connect_circle_dist=10,
                  search_until_max_iter=False,
                  robot_radius=0.0):
         """
@@ -114,15 +114,14 @@ class RRTStar(RRT):
             rnd = self.get_random_node()
             nearest_ind = self.get_nearest_node_index(self.node_list, rnd)
             # TODO Create a new node with steer
-            new_node = self.steer(self.node_list[nearest_ind], rnd, self.expand_dis)
             near_node = self.node_list[nearest_ind]
+            new_node = self.steer(near_node, rnd, self.expand_dis)
             # TODO Compute the cost of the new node taking into account the nearest node, near_node
             new_node.cost = self.calc_new_cost(near_node, new_node)
 
             # TODO Check for collisions using the check_collision function, and take actions accordingly
             # If there is no collision, branch to the shortest path (if applicable) and rewire
-            if self.check_if_outside_play_area(new_node, self.play_area) and \
-               self.check_collision(new_node, self.obstacle_list, self.robot_radius):
+            if self.check_collision(new_node, self.obstacle_list, self.robot_radius):
                 near_inds = self.find_near_nodes(new_node)
                 new_node_candidate = self.choose_parent(new_node, near_inds)
                 new_node = new_node_candidate if new_node_candidate is not None else new_node
@@ -171,23 +170,23 @@ class RRTStar(RRT):
         costs = []
         for i in near_inds:
             # TODO find the costs of collision free nodes that, use float(inf) as cost if there is collision
-            check_node = self.steer(self.node_list[i], new_node, self.expand_dis)
+            check_node = self.steer(self.node_list[i], new_node, self.connect_circle_dist)
             if not self.check_collision(check_node, self.obstacle_list, self.robot_radius):
-                costs.append(float('inf'))
+                costs.append((float('inf'), i))
                 continue
-            costs.append(self.calc_new_cost(self.node_list[i], new_node))
+            costs.append((self.calc_new_cost(self.node_list[i], check_node), i))
 
         # Find the minimum cost
         min_cost = min(costs)
 
         # If there is no new parent
-        if min_cost == float("inf"):
+        if min_cost[0] == float("inf"):
             print("There is no good path.(min_cost is inf)")
             return None
 
         # TODO Find which node has the minimum cost and set that as the new parent of new_node using steer, remember to update the cost of the updated new node
-        new_parent = self.node_list[costs.index(min_cost)]
-        new_node = self.steer(new_parent, new_node, self.expand_dis)
+        new_parent = self.node_list[min_cost[1]]
+        new_node = self.steer(new_parent, new_node, self.connect_circle_dist)
         new_node.cost = self.calc_new_cost(new_parent, new_node)
 
         return new_node
@@ -278,7 +277,7 @@ class RRTStar(RRT):
         # TODO Check for costs of nearby nodes for each node in the list of near_inds
         for i in near_inds:
             near_node = self.node_list[i]
-            edge_node = self.steer(new_node, near_node)
+            edge_node = self.steer(new_node, near_node, self.connect_circle_dist)
             if not edge_node:
                 continue
             # TODO Calculate the cost from near node to the new node (use calc_new_cost)
@@ -314,28 +313,39 @@ def main():
 
     # Define the list of virtual obstacles, see below for the entries
     # TODO define obstacles that make sense within the TurtleBot3's range
+    obstacle_list = [
+        (5, 5, 1),
+        (3, 6, 2),
+        (3, 8, 2),
+        (3, 10, 2),
+        (7, 5, 2),
+        (9, 5, 2),
+        (8, 10, 1),
+        (6, 12, 1),
+    ]  # [x,y,size(radius)]
+    # obstacle_list = [(5, 5, 1), (3, 6, 2), (3, 8, 2), (3, 10, 2), (7, 5, 2),
+    #                 (9, 5, 2), (8, 10, 1)]  # [x, y, radius]
+    # obstacle_list = [(3, 5, 1.5), (5, 3, 1.5), (5, 5, 1), (6, 6, 1)]
     # obstacle_list = [
-    #     (5, 5, 1),
-    #     (3, 6, 2),
-    #     (3, 8, 2),
-    #     (3, 10, 2),
-    #     (7, 5, 2),
-    #     (9, 5, 2),
-    #     (8, 10, 1),
-    #     (6, 12, 1),
-    # ]  # [x,y,size(radius)]
-    obstacle_list = [(5, 5, 1), (3, 6, 2), (3, 8, 2), (3, 10, 2), (7, 5, 2),
-                    (9, 5, 2), (8, 10, 1)]  # [x, y, radius]
+    #     (1.5, 1.5, 0.4),
+    #     (2.5, 3.5, 0.3),
+    #     (4.0, 2.0, 0.5),
+    #     (4.5, 4.5, 0.4),
+    #     (3.0, 2.5, 0.5),
+    #     (5.5, 1.0, 0.4)
+    # ]
 
     # Set Initial parameters, refer to the explanation at the top of this file
     rrt_star = RRTStar(
         max_iter=1500,
         start=[0, 0],
         goal=[6, 10],
+        # goal=[4, 5],
         rand_area=[-2, 15],
+        # rand_area=[0, 6],
         obstacle_list=obstacle_list,
-        expand_dis=1,
-        connect_circle_dist=50,
+        # expand_dis=1,
+        # connect_circle_dist=3,
         robot_radius=0.8)
     
     # Search the path using RRT*

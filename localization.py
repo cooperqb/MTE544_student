@@ -19,6 +19,7 @@ from rclpy import init, spin, spin_once
 
 import numpy as np
 import message_filters
+import matplotlib.pyplot as plt
 
 rawSensors=0; kalmanFilter=1
 
@@ -27,7 +28,7 @@ odom_qos=QoSProfile(reliability=2, durability=2, history=1, depth=10)
 
 class localization(Node):
     
-    def __init__(self, type, loggerName="robotPose.csv", loggerHeaders=["imu_ax", "imu_ay", "kf_ax", "kf_ay","kf_vx","kf_w","kf_x", "kf_y","stamp"]):
+    def __init__(self, type, loggerName="robotPose.csv", loggerHeaders=["imu_ax", "imu_ay", "kf_ax", "kf_ay","kf_vx","kf_w","kf_x", "kf_y", "odom_x", "odom_y","stamp"]):
 
         super().__init__("localizer")
         
@@ -35,7 +36,7 @@ class localization(Node):
         self.pose=None
         
         if type==rawSensors:
-            self.initRawSensors();
+            self.initRawSensors()
         elif type==kalmanFilter:
             self.initKalmanfilter()
             self.kalmanInitialized = False
@@ -68,8 +69,12 @@ class localization(Node):
                         0,
                         0])        
 
-            Q=0.1*np.eye(6)
-            R=0.4*np.eye(4)
+            # x, y, th, w, v, vdot
+            Q= np.array([0.2, 0.2, 0.05, 0.05, 0.01, 0.02]) * np.eye(6) # trust motion
+            
+            # v, w, ax, ay (higher)
+            R= np.array([0.05, 0.03, 2.5, 0.6]) * np.eye(4)  # trust measurement
+
             P=Q.copy()
             
             self.kf=kalman_filter(P,Q,R, x)
@@ -84,7 +89,7 @@ class localization(Node):
                     odom_msg.twist.twist.angular.z,
                     imu_msg.linear_acceleration.x,
                     imu_msg.linear_acceleration.y])
-        print(dt)
+        # print(dt)
         self.kf.predict(dt)
         self.kf.update(z)
         
@@ -96,9 +101,9 @@ class localization(Node):
                             odom_msg.header.stamp])
         
         
-        self.loc_logger.log_values([z[2], z[3], xhat[5], xhat[4]*xhat[3], xhat[4], xhat[3], xhat[0], xhat[1], Time.from_msg(imu_msg.header.stamp).nanoseconds])
-        
-        print(f"{xhat[0]} and {xhat[1]} vs {odom_msg.pose.pose.position.x} vs {odom_msg.pose.pose.position.y}")
+        self.loc_logger.log_values([z[2], z[3], xhat[5], xhat[4]*xhat[3], xhat[4], xhat[3], xhat[0], xhat[1], odom_msg.pose.pose.position.x, odom_msg.pose.pose.position.y, Time.from_msg(imu_msg.header.stamp).nanoseconds])
+
+        # print(f"{xhat[0]} and {xhat[1]} vs {odom_msg.pose.pose.position.x} vs {odom_msg.pose.pose.position.y}")
     def odom_callback(self, pose_msg):
         
         self.pose=[ pose_msg.pose.pose.position.x,

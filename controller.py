@@ -37,7 +37,7 @@ class controller:
 
 class trajectoryController(controller):
 
-    def __init__(self, klp=0.2, klv=0.2, kli=0.2, kap=0.2, kav=0.2, kai=0.2, lookAhead=1.0, targetVel=1.0):
+    def __init__(self, klp=0.2, klv=0.2, kli=0.2, kap=0.2, kav=0.2, kai=0.2, lookAhead=50, targetVel=1.0):
         super().__init__(klp, klv, kli, kap, kav, kai)
         self.lookAhead=lookAhead
         self.targetVelocity=targetVel
@@ -72,4 +72,4 @@ class trajectoryController(controller):
                                axis=1)
         closestIndex=np.argmin(distanceSquared)
 
-        return listGoals[ min(closestIndex + 1, len(listGoals) - 1) ]
+        return listGoals[ min(closestIndex + self.lookAhead, len(listGoals) - 1) ]

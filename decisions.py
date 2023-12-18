@@ -1,7 +1,8 @@
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
 
-from utilities import euler_from_quaternion, calculate_angular_error, calculate_linear_error
+from utilities import euler_from_quaternion, calculate_angular_error, calculate_linear_error, FileReader
 from pid import PID_ctrl
 
 from rclpy import init, spin, spin_once
@@ -39,10 +40,10 @@ class decision_maker(Node):
         self.pathPublisher = self.create_publisher(Path, '/designedPath', 10)
         publishing_period=1/rate
 
-        self.reachThreshold=0.1
+        self.reachThreshold=0.2
 
 
-        self.localizer=localization(rawSensors)
+        self.localizer=localization(kalmanFilter)
 
 
         self.goal = None
@@ -118,6 +119,11 @@ class decision_maker(Node):
             self.goal = None
             print("waiting for the new position input, use 2D nav goal on map")
 
+            # Plot travelled path test
+            headers, values=FileReader("robotPose.csv").read_file()
+            plt.plot([lin[6] for lin in values], [lin[7] for lin in values], label='Robot Path')
+            plt.legend()
+            plt.show()
             return
         
         velocity, yaw_rate = self.controller.\

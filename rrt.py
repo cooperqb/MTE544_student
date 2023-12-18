@@ -186,10 +186,10 @@ class RRT:
         plt.gcf().canvas.mpl_connect(
             'key_release_event',
             lambda event: [exit(0) if event.key == 'escape' else None])
-        if rnd is not None:
-            plt.plot(rnd.x, rnd.y, "^k")
-            if self.robot_radius > 0.0:
-                self.plot_circle(rnd.x, rnd.y, self.robot_radius, '-r')
+        # if rnd is not None:
+        #     plt.plot(rnd.x, rnd.y, "^k")
+        #     if self.robot_radius > 0.0:
+        #         self.plot_circle(rnd.x, rnd.y, self.robot_radius, '-r')
         for node in self.node_list:
             if node.parent:
                 plt.plot(node.path_x, node.path_y, "-g")
@@ -209,7 +209,7 @@ class RRT:
         plt.plot(self.start.x, self.start.y, "xr")
         plt.plot(self.end.x, self.end.y, "xr")
         plt.axis("equal")
-        plt.axis([-2, 15, -2, 15])
+        plt.axis([self.min_rand-1, self.max_rand+1, self.min_rand-1, self.max_rand+1])
         plt.grid(True)
         plt.pause(0.0001)
 

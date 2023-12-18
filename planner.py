@@ -54,11 +54,13 @@ class planner:
         if plotting == True:
             plt.plot(x_coords, y_coords, 'o-', label='Original Path')
             plt.plot(x_smooth, y_smooth, label='Smoothed Path')
+            plt.plot(x_coords[0], y_coords[0], 's', label='Start')
+            plt.plot(x_coords[-1], y_coords[-1], '^', label='End')
             plt.legend()
-            plt.xlabel('X-coordinate')
-            plt.ylabel('Y-coordinate')
-            plt.title('Path Smoothing with Cubic Splines')
-            plt.show()
+            plt.xlabel('X [m]')
+            plt.ylabel('Y [m]')
+            plt.title('Robot Tracking of Smoothed RRT* Path')
+            # plt.show()
 
         return smoothed_path
 
@@ -78,15 +80,26 @@ class planner:
         return endPose
 
     def initTrajectoryPlanner(self, startPose, endPose):
-        
-        #### If using the map, you can leverage on the code below originally implemented for A* (BONUS points option)
-        # self.m_utilites=mapManipulator(laser_sig=0.4)    
-        # self.costMap=self.m_utilites.make_likelihood_field()
-
-
         #TODO Remember to initialize the rrt_star
-        obstacle_list = [(5, 5, 1), (3, 6, 2), (3, 8, 2), (3, 10, 2), (7, 5, 2),
-                (9, 5, 2), (8, 10, 1)]  # [x, y, radius]
+        # obstacle_list = [
+        #     (2.5, 3.0, 0.2),
+        #     (4.0, 1.5, 0.4),
+        #     (1.0, 4.5, 0.3),
+        #     (5.5, 2.0, 0.2),
+        #     (3.0, 5.0, 0.5),
+        #     (0.5, 2.5, 0.3),
+        #     (4.5, 4.0, 0.4)
+        # ]
+        obstacle_list = [
+            (5, 5, 1),
+            (3, 6, 2),
+            (3, 8, 2),
+            (3, 10, 2),
+            (7, 5, 2),
+            (9, 5, 2),
+            (8, 10, 1),
+            (6, 12, 1),
+        ]  # [x,y,size(radius)]
         
         self.rtt_star = RRTStar(
             max_iter=1500,
@@ -94,34 +107,16 @@ class planner:
             goal=endPose,
             obstacle_list=obstacle_list,
             rand_area=[-2, 15],
-            expand_dis=1,
-            connect_circle_dist=50,
+            # expand_dis=1,
+            # connect_circle_dist=50,
             robot_radius=0.8
         )
         
     
     def trajectory_planner(self, startPoseCart, endPoseCart, type):
-        
-        #### If using the map, you can leverage on the code below originally implemented for A* (BONUS points option)
-        #### If not using the map (no bonus), you can just call the function in rrt_star with the appropriate arguments and get the returned path
-        #### then you can put the necessary measure to bypass the map stuff down here.
-        # Map scaling factor (to save planning time)
-        # scale_factor = 1 # this is the downsample scale, if set 2, it will downsample the map by half, and if set x, it will do the same as 1/x
-
-
-        # startPose=self.m_utilites.position_2_cell(startPoseCart)
-        # endPose=self.m_utilites.position_2_cell(endPoseCart)
-        
-
         start_time = time.time()
-        
-        # startPose = [int(i/scale_factor) for i in startPose]
-        # endPose   = [int(j/scale_factor) for j in endPose]
-
-        # mazeOrigin = self.m_utilites.position_2_cell([0,0])
-
         # TODO This is for A*, modify this part to use RRT*
-        path = self.rtt_star.planning(animation=False)
+        path = self.rtt_star.planning(animation=True)
         if path is None:
             print("Cannot find path")
             return None
@@ -129,35 +124,28 @@ class planner:
             print("found path!!")
 
         path.reverse()  # Path is returned backwards otherwise
-        path = path[0:-1] # Path contains duplicate goal point
         path = self.interpolate_path(path=path, threshold=2)  # Improves path smoothing performance
-        
+        path= np.array(path)
         end_time = time.time()
 
         # This will display how much time the search algorithm needed to find a path
         print(f"the time took for rtt_star calculation was {end_time - start_time}")
 
-        # path_ = [[x*scale_factor, y*scale_factor] for x,y in path ]
-        # Path = np.array(list(map(self.m_utilites.cell_2_position, path_ )))
-
         # TODO Smooth the path before returning it to the decision maker
         # this can be in form of a function that you can put in the utilities.py 
         # or add it as a method to the original rrt.py 
-        smoothed_path = self.smooth_path(np.array(path), plotting=True)
+        smoothed_path = self.smooth_path(path, plotting=True)
 
+        print(f'Length of Smoothed Path (Nodes): {len(smoothed_path)}')
         return smoothed_path
 
 
 if __name__=="__main__":
     rclpy.init()
 
-    # m_utilites=mapManipulator()
-    
-    # map_likelihood=m_utilites.make_likelihood_field()
-
     # you can do your test here ...
 
     my_planner = planner(mapName="empty_world", type_=RRT_STAR_PLANNER)
-    my_planner.plan([0.319, -0.235], [6, 10])
+    my_planner.plan([0, 0], [7.8, 11.8])
 
 
