@@ -211,7 +211,7 @@ class RRT:
         plt.axis("equal")
         plt.axis([-2, 15, -2, 15])
         plt.grid(True)
-        plt.pause(0.001)
+        plt.pause(0.0001)
 
     @staticmethod
     def plot_circle(x, y, size, color="-b"):  # pragma: no cover

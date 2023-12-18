@@ -1,4 +1,5 @@
 import sys
+import numpy as np
 
 from utilities import euler_from_quaternion, calculate_angular_error, calculate_linear_error
 from pid import PID_ctrl
@@ -71,6 +72,9 @@ class decision_maker(Node):
 
     
     def designPathFor(self, msg: PoseStamped):
+        # Hard code goal for testing
+        msg.pose.position.x = 6.0
+        msg.pose.position.y = 10.0
         
         spin_once(self.localizer)
         
@@ -96,7 +100,7 @@ class decision_maker(Node):
         if self.goal is None:
             return
         
-        if type(self.goal) == list:
+        if type(self.goal) == list or type(self.goal) == np.ndarray:
             reached_goal=True if calculate_linear_error(self.localizer.getPose(), self.goal[-1]) <self.reachThreshold else False
         else: 
             reached_goal=True if calculate_linear_error(self.localizer.getPose(), self.goal) <self.reachThreshold else False
@@ -163,7 +167,7 @@ def main(args=None):
     if args.motion == "point":
         DM=decision_maker(Twist, "/cmd_vel", 10, motion_type=POINT_PLANNER)
     elif args.motion == "trajectory":
-        DM=decision_maker(Twist, "/cmd_vel", 10, motion_type=TRAJECTORY_PLANNER)
+        DM=decision_maker(Twist, "/cmd_vel", 10, motion_type=RRT_STAR_PLANNER)
     else:
         print("invalid motion type", file=sys.stderr)
 

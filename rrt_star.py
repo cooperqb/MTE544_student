@@ -131,7 +131,7 @@ class RRTStar(RRT):
             else:
                 continue
             
-            if animation:
+            if animation and not (i%5):
                 self.draw_graph(rnd)
 
             if ((not self.search_until_max_iter)
