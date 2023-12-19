@@ -122,25 +122,28 @@ class RRTStar(RRT):
             # TODO Check for collisions using the check_collision function, and take actions accordingly
             # If there is no collision, branch to the shortest path (if applicable) and rewire
             if self.check_collision(new_node, self.obstacle_list, self.robot_radius):
-                near_inds = self.find_near_nodes(new_node)
-                new_node_candidate = self.choose_parent(new_node, near_inds)
-                new_node = new_node_candidate if new_node_candidate is not None else new_node
-                self.node_list.append(new_node)
-                self.rewire(new_node, near_inds)
-            else:
+                near_inds = self.find_near_nodes(new_node)  # Get indices of all nodes within connect_circ_dist
+                new_node_candidate = self.choose_parent(new_node, near_inds)  # Get candidate for better parent of new node
+                new_node = new_node_candidate if new_node_candidate is not None else new_node  # Update with better parent if it exists
+                self.node_list.append(new_node)  # Finally append new node to list
+                self.rewire(new_node, near_inds)  # rewire
+            else:  # Move on to next random node in event of collision
                 continue
             
+            # Animate every 5 iterations
             if animation and not (i%5):
                 self.draw_graph(rnd)
 
+            # Check for completion
             if ((not self.search_until_max_iter)
                     and new_node):  # if reaches goal
-                last_index = self.search_best_goal_node()
+                last_index = self.search_best_goal_node()  # Get best final node
                 if last_index is not None:
                     return self.generate_final_course(last_index)
 
         print("reached max iteration")
 
+        # Exit after reaching iteration limit 
         last_index = self.search_best_goal_node()
         if last_index is not None:
             return self.generate_final_course(last_index)
@@ -170,10 +173,12 @@ class RRTStar(RRT):
         costs = []
         for i in near_inds:
             # TODO find the costs of collision free nodes that, use float(inf) as cost if there is collision
+            # Set cost to float('inf') if collision steering to new_node
             check_node = self.steer(self.node_list[i], new_node, self.connect_circle_dist)
             if not self.check_collision(check_node, self.obstacle_list, self.robot_radius):
                 costs.append((float('inf'), i))
                 continue
+            # Get cost if there's no collision
             costs.append((self.calc_new_cost(self.node_list[i], check_node), i))
 
         # Find the minimum cost
@@ -276,10 +281,12 @@ class RRTStar(RRT):
         """
         # TODO Check for costs of nearby nodes for each node in the list of near_inds
         for i in near_inds:
+            # Steer from the new node to the near node
             near_node = self.node_list[i]
             edge_node = self.steer(new_node, near_node, self.connect_circle_dist)
             if not edge_node:
                 continue
+
             # TODO Calculate the cost from near node to the new node (use calc_new_cost)
             edge_node.cost = self.calc_new_cost(new_node, edge_node)
 
@@ -313,6 +320,7 @@ def main():
 
     # Define the list of virtual obstacles, see below for the entries
     # TODO define obstacles that make sense within the TurtleBot3's range
+    # Map One
     obstacle_list = [
         (5, 5, 1),
         (3, 6, 2),
@@ -323,9 +331,8 @@ def main():
         (8, 10, 1),
         (6, 12, 1),
     ]  # [x,y,size(radius)]
-    # obstacle_list = [(5, 5, 1), (3, 6, 2), (3, 8, 2), (3, 10, 2), (7, 5, 2),
-    #                 (9, 5, 2), (8, 10, 1)]  # [x, y, radius]
-    # obstacle_list = [(3, 5, 1.5), (5, 3, 1.5), (5, 5, 1), (6, 6, 1)]
+    
+    # Map Two
     # obstacle_list = [
     #     (1.5, 1.5, 0.4),
     #     (2.5, 3.5, 0.3),
@@ -339,13 +346,11 @@ def main():
     rrt_star = RRTStar(
         max_iter=1500,
         start=[0, 0],
-        goal=[6, 10],
-        # goal=[4, 5],
-        rand_area=[-2, 15],
-        # rand_area=[0, 6],
+        goal=[6, 10],  # Map One
+        # goal=[4, 5], # Map Two
+        rand_area=[-2, 15],  # Map One
+        # rand_area=[0, 6],  # Map Two
         obstacle_list=obstacle_list,
-        # expand_dis=1,
-        # connect_circle_dist=3,
         robot_radius=0.8)
     
     # Search the path using RRT*

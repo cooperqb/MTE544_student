@@ -74,8 +74,9 @@ class decision_maker(Node):
     
     def designPathFor(self, msg: PoseStamped):
         # Hard code goal for testing
-        msg.pose.position.x = 6.0
-        msg.pose.position.y = 10.0
+        # NOTE: to trigger this callback, publish any arbitrary goal in RVIZ
+        msg.pose.position.x = 7.8
+        msg.pose.position.y = 11.8
         
         spin_once(self.localizer)
         
@@ -119,7 +120,7 @@ class decision_maker(Node):
             self.goal = None
             print("waiting for the new position input, use 2D nav goal on map")
 
-            # Plot travelled path test
+            # Plot the travelled path of the robot after it reaches the goal 
             headers, values=FileReader("robotPose.csv").read_file()
             plt.plot([lin[6] for lin in values], [lin[7] for lin in values], label='Robot Path')
             plt.legend()
